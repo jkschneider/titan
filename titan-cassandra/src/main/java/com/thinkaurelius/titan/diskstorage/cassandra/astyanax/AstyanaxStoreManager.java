@@ -476,8 +476,13 @@ public class AstyanaxStoreManager extends AbstractCassandraStoreManager {
                         .setRetryMaxDelaySlice(retryMaxDelaySlice)
                         .setRetrySuspendWindow(retrySuspendWindow)
                         .setSocketTimeout(connectionTimeout)
-                        .setConnectTimeout(connectionTimeout)
-                        .setSeeds(StringUtils.join(hostnames, ","));
+                        .setConnectTimeout(connectionTimeout);
+
+        // if seeds are set, AstyanaxContext.getNodeDiscoveryType() overrides DISCOVERY_SERVICE; they should
+        // not be used together
+        if(!NodeDiscoveryType.DISCOVERY_SERVICE.equals(discType)) {
+            cpool.setSeeds(StringUtils.join(hostnames, ","));
+        }
 
         if (null != retryBackoffStrategy) {
             cpool.setRetryBackoffStrategy(retryBackoffStrategy);
